@@ -10,9 +10,9 @@ constraints:
     description: "Output segments must have input correspondents (no epenthesis)"
 
 examples:
-  # Input: /pat/
+  # Input: pat
   # Optimal output: pa.ta (epenthesis to avoid coda)
-  - input: /pat/
+  - input: pat
     output: pa.ta
     optimal: true
     violations:
@@ -21,7 +21,7 @@ examples:
       DEP: 1
   
   # Suboptimal: pat (has coda)
-  - input: /pat/
+  - input: pat
     output: pat
     optimal: false
     violations:
@@ -30,7 +30,7 @@ examples:
       DEP: 0
   
   # Suboptimal: pa (deletion)
-  - input: /pat/
+  - input: pat
     output: pa
     optimal: false
     violations:
@@ -38,9 +38,9 @@ examples:
       MAX: 1
       DEP: 0
   
-  # Input: /tak/
+  # Input: tak
   # Optimal output: ta.ka
-  - input: /tak/
+  - input: tak
     output: ta.ka
     optimal: true
     violations:
@@ -48,7 +48,7 @@ examples:
       MAX: 0
       DEP: 1
   
-  - input: /tak/
+  - input: tak
     output: tak
     optimal: false
     violations:

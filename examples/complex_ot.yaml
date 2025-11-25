@@ -12,7 +12,7 @@ constraints:
 
 examples:
   # Voicing alternations
-  - input: /bad/
+  - input: bad
     output: bat
     optimal: true
     violations:
@@ -21,7 +21,7 @@ examples:
       NOCODA: 1
       MAX: 0
   
-  - input: /bad/
+  - input: bad
     output: bad
     optimal: false
     violations:
@@ -30,7 +30,7 @@ examples:
       NOCODA: 1
       MAX: 0
   
-  - input: /bad/
+  - input: bad
     output: ba
     optimal: false
     violations:
@@ -39,7 +39,7 @@ examples:
       NOCODA: 0
       MAX: 1
   
-  - input: /tag/
+  - input: tag
     output: tak
     optimal: true
     violations:
@@ -48,7 +48,7 @@ examples:
       NOCODA: 1
       MAX: 0
   
-  - input: /tag/
+  - input: tag
     output: tag
     optimal: false
     violations:
