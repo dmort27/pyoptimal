@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+"""
+PyOptimal - Command-line tool for learning constraint rankings in OT/HG.
+
+This script can be run from anywhere after installation.
+It will use the installed package if available, or fall back to
+the local src directory if run from the project root.
+"""
+import sys
+import os
+
+def main():
+    # Try to import the package directly first
+    try:
+        from pyoptimal.cli import main as cli_main
+        cli_main()
+        return
+    except ImportError:
+        pass
+    
+    # If not installed, try to add src directory to path (when run from project root)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    src_dir = os.path.join(script_dir, 'src')
+    
+    if os.path.exists(src_dir):
+        sys.path.insert(0, src_dir)
+        try:
+            from pyoptimal.cli import main as cli_main
+            cli_main()
+            return
+        except ImportError as e:
+            print(f"Error: Could not import pyoptimal. Make sure dependencies are installed.", file=sys.stderr)
+            print(f"Install with: pip install -e \".[dev]\"", file=sys.stderr)
+            print(f"Original error: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        print("Error: pyoptimal package not found and not running from project root.", file=sys.stderr)
+        print("Please install the package with: pip install pyoptimal", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

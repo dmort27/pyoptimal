@@ -1,0 +1,58 @@
+# More complex OT example with voicing and syllable structure
+
+constraints:
+  - name: "*VoiObstr"
+    description: "Obstruents must not be voiced"
+  - name: IDENT-Voice
+    description: "Corresponding segments must have identical voicing"
+  - name: NOCODA
+    description: "Syllables must not have codas"
+  - name: MAX
+    description: "Input segments must have output correspondents"
+
+examples:
+  # Voicing alternations
+  - input: /bad/
+    output: bat
+    optimal: true
+    violations:
+      "*VoiObstr": 0
+      IDENT-Voice: 1
+      NOCODA: 1
+      MAX: 0
+  
+  - input: /bad/
+    output: bad
+    optimal: false
+    violations:
+      "*VoiObstr": 1
+      IDENT-Voice: 0
+      NOCODA: 1
+      MAX: 0
+  
+  - input: /bad/
+    output: ba
+    optimal: false
+    violations:
+      "*VoiObstr": 0
+      IDENT-Voice: 0
+      NOCODA: 0
+      MAX: 1
+  
+  - input: /tag/
+    output: tak
+    optimal: true
+    violations:
+      "*VoiObstr": 0
+      IDENT-Voice: 1
+      NOCODA: 1
+      MAX: 0
+  
+  - input: /tag/
+    output: tag
+    optimal: false
+    violations:
+      "*VoiObstr": 1
+      IDENT-Voice: 0
+      NOCODA: 1
+      MAX: 0

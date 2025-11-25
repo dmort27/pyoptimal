@@ -1,0 +1,57 @@
+# Simple Optimality Theory grammar example
+# This example demonstrates syllable structure constraints
+
+constraints:
+  - name: NOCODA
+    description: "Syllables must not have codas"
+  - name: MAX
+    description: "Input segments must have output correspondents (no deletion)"
+  - name: DEP
+    description: "Output segments must have input correspondents (no epenthesis)"
+
+examples:
+  # Input: /pat/
+  # Optimal output: pa.ta (epenthesis to avoid coda)
+  - input: /pat/
+    output: pa.ta
+    optimal: true
+    violations:
+      NOCODA: 0
+      MAX: 0
+      DEP: 1
+  
+  # Suboptimal: pat (has coda)
+  - input: /pat/
+    output: pat
+    optimal: false
+    violations:
+      NOCODA: 1
+      MAX: 0
+      DEP: 0
+  
+  # Suboptimal: pa (deletion)
+  - input: /pat/
+    output: pa
+    optimal: false
+    violations:
+      NOCODA: 0
+      MAX: 1
+      DEP: 0
+  
+  # Input: /tak/
+  # Optimal output: ta.ka
+  - input: /tak/
+    output: ta.ka
+    optimal: true
+    violations:
+      NOCODA: 0
+      MAX: 0
+      DEP: 1
+  
+  - input: /tak/
+    output: tak
+    optimal: false
+    violations:
+      NOCODA: 1
+      MAX: 0
+      DEP: 0
