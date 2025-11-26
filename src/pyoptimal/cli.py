@@ -7,12 +7,13 @@ import sys
 from pathlib import Path
 from .grammar import Grammar
 from .learner import Learner
+from .tableau import generate_tableaux_from_yaml
 
 
 def main() -> None:
     """Main entry point for the CLI."""
     parser = argparse.ArgumentParser(
-        description="Learn constraint rankings from OT/HG grammars"
+        description="Learn constraint rankings from OT/HG grammars and generate LaTeX tableaux"
     )
     parser.add_argument(
         "input_file",
@@ -35,6 +36,22 @@ def main() -> None:
         "-v", "--verbose",
         action="store_true",
         help="Verbose output"
+    )
+    parser.add_argument(
+        "-t", "--tableaux",
+        action="store_true",
+        help="Generate LaTeX tableaux for all examples"
+    )
+    parser.add_argument(
+        "--tableaux-dir",
+        type=str,
+        default="tableaux",
+        help="Output directory for LaTeX tableaux (default: tableaux)"
+    )
+    parser.add_argument(
+        "--no-input-column",
+        action="store_true",
+        help="Exclude input column from tableaux"
     )
     
     args = parser.parse_args()
@@ -63,6 +80,7 @@ def main() -> None:
         print(f"\nLearned constraint ranking:")
         print(ranking)
         
+        weights = None
         if args.algorithm == "hg":
             from .hg import HGLearner
             hg_learner = HGLearner(grammar)
@@ -77,6 +95,22 @@ def main() -> None:
             with open(output_path, 'w') as f:
                 f.write(f"Constraint ranking:\n{ranking}\n")
             print(f"\nRanking saved to {args.output}")
+        
+        if args.tableaux:
+            if args.verbose:
+                print(f"\nGenerating LaTeX tableaux...")
+            
+            tableau_files = generate_tableaux_from_yaml(
+                str(input_path),
+                args.tableaux_dir,
+                algorithm=args.algorithm,
+                weights=weights,
+                include_input_column=not args.no_input_column,
+            )
+            
+            print(f"\nGenerated {len(tableau_files)} tableau file(s) in {args.tableaux_dir}/:")
+            for filepath in tableau_files:
+                print(f"  {filepath.name}")
     
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)

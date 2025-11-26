@@ -76,3 +76,51 @@ def test_grammar_add_example():
     
     grammar.add_example(Example("/pat/", "pat", False, {"NOCODA": 1}))
     assert len(grammar.examples) == 1
+
+
+def test_constraint_with_latex():
+    c = Constraint("NOCODA", "No codas", latex=r"\textsc{NoCoda}")
+    assert c.name == "NOCODA"
+    assert c.description == "No codas"
+    assert c.latex == r"\textsc{NoCoda}"
+
+
+def test_constraint_get_display_name():
+    # Without latex field
+    c1 = Constraint("NOCODA", "No codas")
+    assert c1.get_display_name() == "NOCODA"
+    
+    # With latex field
+    c2 = Constraint("NOCODA", "No codas", latex=r"\textsc{NoCoda}")
+    assert c2.get_display_name() == r"\textsc{NoCoda}"
+
+
+def test_grammar_yaml_roundtrip_with_latex():
+    constraints = [
+        Constraint("NOCODA", "No codas", latex=r"\textsc{NoCoda}"),
+        Constraint("MAX", "No deletion", latex=r"\textsc{Max}"),
+        Constraint("DEP", "No epenthesis")  # No latex field
+    ]
+    examples = [
+        Example("/pat/", "pa.ta", True, {"NOCODA": 0, "MAX": 0, "DEP": 1})
+    ]
+    grammar = Grammar(constraints, examples)
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        temp_path = f.name
+    
+    try:
+        grammar.to_yaml(temp_path)
+        loaded_grammar = Grammar.from_yaml(temp_path)
+        
+        assert len(loaded_grammar.constraints) == 3
+        assert loaded_grammar.constraints[0].name == "NOCODA"
+        assert loaded_grammar.constraints[0].latex == r"\textsc{NoCoda}"
+        assert loaded_grammar.constraints[1].latex == r"\textsc{Max}"
+        assert loaded_grammar.constraints[2].latex is None
+        
+        # Test display names
+        assert loaded_grammar.constraints[0].get_display_name() == r"\textsc{NoCoda}"
+        assert loaded_grammar.constraints[2].get_display_name() == "DEP"
+    finally:
+        os.unlink(temp_path)

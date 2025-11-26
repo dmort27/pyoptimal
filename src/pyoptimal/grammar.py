@@ -9,9 +9,14 @@ import yaml
 class Constraint:
     """Represents a single constraint in the grammar."""
     
-    def __init__(self, name: str, description: str = ""):
+    def __init__(self, name: str, description: str = "", latex: Optional[str] = None):
         self.name = name
         self.description = description
+        self.latex = latex
+    
+    def get_display_name(self) -> str:
+        """Get the display name for this constraint (latex if available, otherwise name)."""
+        return self.latex if self.latex else self.name
     
     def __repr__(self) -> str:
         return f"Constraint(name='{self.name}')"
@@ -73,7 +78,8 @@ class Grammar:
         for c_data in data.get('constraints', []):
             constraint = Constraint(
                 name=c_data['name'],
-                description=c_data.get('description', '')
+                description=c_data.get('description', ''),
+                latex=c_data.get('latex')
             )
             constraints.append(constraint)
         
@@ -91,14 +97,15 @@ class Grammar:
     
     def to_yaml(self, filepath: str) -> None:
         """Save grammar to a YAML file."""
+        constraint_list = []
+        for c in self.constraints:
+            c_dict = {'name': c.name, 'description': c.description}
+            if c.latex:
+                c_dict['latex'] = c.latex
+            constraint_list.append(c_dict)
+        
         data = {
-            'constraints': [
-                {
-                    'name': c.name,
-                    'description': c.description
-                }
-                for c in self.constraints
-            ],
+            'constraints': constraint_list,
             'examples': [
                 {
                     'input': e.input_form,
