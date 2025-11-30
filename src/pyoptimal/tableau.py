@@ -11,20 +11,21 @@ from .candidate import Candidate
 
 
 def escape_latex(text: str) -> str:
-    """Escape special LaTeX characters in text."""
+    """
+    Escape special LaTeX characters in text.
+    
+    Note: $, ^, and _ are not escaped to allow LaTeX math mode, superscripts, and subscripts.
+    """
     # Process backslash first, then other characters
     # to avoid double-escaping
     result = text.replace('\\', r'\textbackslash{}')
     replacements = {
         '&': r'\&',
         '%': r'\%',
-        '$': r'\$',
         '#': r'\#',
-        '_': r'\_',
         '{': r'\{',
         '}': r'\}',
         '~': r'\textasciitilde{}',
-        '^': r'\^{}',
     }
     for char, replacement in replacements.items():
         result = result.replace(char, replacement)

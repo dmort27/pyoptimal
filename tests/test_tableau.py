@@ -28,21 +28,41 @@ class TestLatexEscape:
     def test_escape_percent(self):
         assert escape_latex("50%") == r"50\%"
     
-    def test_escape_dollar(self):
-        assert escape_latex("$100") == r"\$100"
+    def test_no_escape_dollar(self):
+        # $ should not be escaped to allow LaTeX math mode
+        assert escape_latex("$100") == "$100"
+    
+    def test_no_escape_underscore(self):
+        # _ should not be escaped to allow LaTeX subscripts
+        assert escape_latex("x_1") == "x_1"
+    
+    def test_no_escape_caret(self):
+        # ^ should not be escaped to allow LaTeX superscripts
+        assert escape_latex("x^2") == "x^2"
     
     def test_escape_multiple_characters(self):
-        assert escape_latex("$100 & 50%") == r"\$100 \& 50\%"
+        # $ should not be escaped, but & and % should be
+        assert escape_latex("$100 & 50%") == r"$100 \& 50\%"
+    
+    def test_latex_formatting(self):
+        # Test common LaTeX patterns used in tableaux
+        assert escape_latex("$_1$") == "$_1$"
+        assert escape_latex("$x^2$") == "$x^2$"
 
 
 class TestFormatConstraintName:
     def test_format_simple_name(self):
         assert format_constraint_name("NOCODA") == "NOCODA"
     
-    def test_format_name_with_special_chars(self):
-        # Constraint names with special chars should be escaped
+    def test_format_name_with_underscore(self):
+        # _ should not be escaped to allow LaTeX subscripts in constraint names
         result = format_constraint_name("MAX_IO")
-        assert r"\_" in result
+        assert result == "MAX_IO"
+    
+    def test_format_name_with_math(self):
+        # LaTeX math formatting should be preserved in constraint names
+        result = format_constraint_name("$C_1$")
+        assert result == "$C_1$"
 
 
 class TestGroupExamples:
