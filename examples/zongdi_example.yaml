@@ -1,0 +1,201 @@
+# Zongdi tones: 32, 22, 53, 42, 232, 11, 55, 35, 13, 44, 21, 33
+# level: 11 Ll`, 22 Lh, 33 Hl, 55
+# falling: 32 Lh-Ll, 53 Hh-Lh, 42, 21, 33
+# rising: 13
+# rising-falling: 232
+constraints:
+  # - name: "*lh"
+  #   latex: "*[$+$hi $-$hireg][$-$hi $+$hireg]"
+  #   description: "Sequences of [$+$hi $-$hreg] and [$-$hi $+$hreg] are forbidden within a V"
+  - name: Corr-TT
+    latex: "\\textsc{Corr}-loreg"
+    description: "Quanta sharing the feature [$-$hireg] are in correspondence"
+  - name: Corr-V
+    latex: "\\textsc{Corr}-V"
+    description: "Quanta within a V are in correspondence with one another"
+  - name: Ident-Corr-T
+    latex: "\\textsc{Ident}-\\textsc{Corr}[T]"
+    description: "Corresponding quanta share identical tones"
+  - name: Ident-Corr-P
+    latex: "\\textsc{Ident}-\\textsc{Corr}[P]"
+    description: "Corresponding quanta share identical place features"
+  - name: NoBreathyRTR
+    latex: "*[$+$sg $-$ATR]"
+    description: "Breathy-voiced quanta are tense"
+  # - name: "NoBreathyHiTone"
+  #   latex: "*[$+$sg $+$hi]"
+  #   description: "Breathy-voiced quanta do not have high tone"
+  - name: "NoBreathyHiReg"
+    latex: "*[$+$sg $+$hireg]"
+    description: "Breathy-voiced quanta do not have high register"
+  # - name: "Ident-V"
+  #   latex: "\\textsc{indent}-IO[V]"
+  - name: "Ident-T"
+    latex: "\\textsc{Indent}-IO[T]"
+  - name: "Ident-L"
+    latex: "\\textsc{Ident}-IO[L]"
+    description: "Quanta in the output share the same laryngeal features as the corresponding input quanta"
+  - name: "Ident-P"
+    latex: "\\textsc{Ident}-IO[P]"
+    description: "Quanta in the output share the same place features as the corresponding input quanta"
+
+examples:
+  - input: (n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (n t t)(ȉ̤ ȉ̤ í̤)
+    optimal: true
+    violations:
+      NoBreathyHiReg: 1
+      Ident-Corr-T: 2
+      Ident-P: 3
+      Corr-V: 2
+
+  # - input: (n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+  #   output: (n t t)(ȉ̤ ȉ̤ ɪ́)
+  #   optimal: true
+  #   violations:
+  #     Ident-Corr-T: 2
+  #     Ident-Corr-P: 2
+  #     Ident-L: 1
+  #     Corr-V: 2
+      
+  - input: (n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (n t t)(ȉ̤ ȉ̤ ȉ̤)
+    optimal: false
+    violations:
+      Ident-T: 1
+      Ident-P: 3
+
+  - input: (n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (n t t)(ɪ̏ ɪ̏ ɪ́)
+    optimal: false
+    violations:
+      Ident-L: 3
+      Ident-Corr-T: 2
+      Corr-V: 2
+
+  - input: (n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    optimal: false
+    violations:
+      NoBreathyRTR: 2
+      Ident-Corr-T: 2
+      Corr-V: 2
+
+  - input: (n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (n t t)(ɪ́ ɪ́ ɪ́)
+    optimal: false
+    violations:
+      Ident-T: 2
+      Ident-L: 3
+
+  - input: (é é ì)
+    output: (é é ì)
+    optimal: true
+    violations:
+      Ident-Corr-T: 2
+
+  - input: (é é ì)
+    output: (é é ì)
+    optimal: true
+    violations:
+      Corr-V: 1
+
+  - input: (é é ì)
+    output: (é é í)
+    optimal: false
+    violations:
+      Ident-T: 1
+
+  - input: (é é ì)
+    output: (è è ì)
+    optimal: false 
+    violations:
+      Ident-T: 2
+
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ɪ́ ɪ́ ɪ́)
+    optimal: true
+    violations:
+      Ident-L: 2
+      Ident-T: 1
+      Corr-TT: 1
+
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é í)(n t t)(ɪ́ ɪ́ ɪ́)
+    optimal: false
+    violations:
+      Ident-L: 2
+      Ident-T: 2
+
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ɪ̀ ɪ̀ ɪ́)
+    optimal: false
+    violations:
+      Ident-L: 2
+      Ident-T: 2
+      Corr-V: 2
+      
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ɪ̀ ɪ̀ ɪ́)
+    optimal: false
+    violations:
+      Ident-L: 2
+      Ident-T: 2
+      Corr-V: 2
+      
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ɪ̏ ɪ̏ ɪ́)
+    optimal: false
+    violations:
+      Ident-L: 2
+      Corr-TT: 2      
+      Corr-V: 2
+      
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ɪ̏ ɪ̏ ɪ́)
+    optimal: false
+    violations:
+      Ident-L: 2
+      Ident-Corr-T: 2           
+      Corr-V: 2
+      
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    optimal: 
+    violations:
+      Corr-TT: 2
+      NoBreathyRTR: 2
+      Corr-V: 2
+
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    optimal: false
+    violations:
+      Ident-Corr-T: 2
+      NoBreathyRTR: 2
+      Corr-V: 2
+
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ȉ̤ ȉ̤ í)
+    optimal: false
+    violations:
+      Corr-TT: 2
+      Ident-P: 3
+      Corr-V: 2
+
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ȉ̤ ȉ̤ í)
+    optimal: false
+    violations:
+      Ident-Corr-T: 2
+      Ident-P: 3
+      Corr-V: 2
+
+  - input: (é é ì)(n t t)(ɪ̤̏ ɪ̤̏ ɪ̤́)
+    output: (é é ì)(n t t)(ì̤ ì̤ í)
+    optimal: false
+    violations:
+      Ident-P: 3
+      NoBreathyHiReg: 2
+      Corr-V: 2
+      
