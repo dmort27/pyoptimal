@@ -81,3 +81,46 @@ def test_learner_invalid_algorithm():
     
     with pytest.raises(ValueError):
         learner.train()
+
+
+def test_learner_rcd():
+    """Test RCD (Recursive Constraint Demotion) algorithm."""
+    grammar = create_simple_grammar()
+    learner = Learner(grammar, algorithm="rcd")
+    ranking = learner.train()
+    
+    assert ranking is not None
+    assert isinstance(ranking, PartialOrder)
+    # RCD should produce a stratified ranking
+    strata = ranking.get_strata()
+    assert len(strata) > 0
+
+
+def test_learner_edcd():
+    """Test EDCD (Error-Driven Constraint Demotion) algorithm."""
+    grammar = create_simple_grammar()
+    learner = Learner(grammar, algorithm="edcd")
+    ranking = learner.train()
+    
+    assert ranking is not None
+    assert isinstance(ranking, PartialOrder)
+
+
+def test_learner_gla():
+    """Test GLA (Gradual Learning Algorithm)."""
+    grammar = create_simple_grammar()
+    learner = Learner(grammar, algorithm="gla")
+    ranking = learner.train()
+    
+    assert ranking is not None
+    assert isinstance(ranking, PartialOrder)
+
+
+def test_learner_maxent():
+    """Test MaxEnt (Maximum Entropy) algorithm."""
+    grammar = create_simple_grammar()
+    learner = Learner(grammar, algorithm="maxent")
+    ranking = learner.train()
+    
+    assert ranking is not None
+    assert isinstance(ranking, PartialOrder)

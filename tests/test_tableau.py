@@ -72,8 +72,13 @@ class TestGenerateOTTableau:
         
         latex = generate_ot_tableau(input_form, candidates, constraints)
         
-        assert r"\documentclass" in latex
-        assert r"\usepackage{tabularray}" in latex
+        # Should only contain tblr environment, not document wrapper
+        assert r"\documentclass" not in latex
+        assert r"\usepackage{tabularray}" not in latex
+        assert r"\begin{document}" not in latex
+        assert r"\end{document}" not in latex
+        assert r"\begin{tblr}" in latex
+        assert r"\end{tblr}" in latex
         assert "/pat/" in latex
         assert "NOCODA" in latex
         assert "MAX" in latex
@@ -91,8 +96,10 @@ class TestGenerateOTTableau:
             input_form, candidates, constraints, include_input_column=False
         )
         
-        # Should have fewer columns without input column
+        # Should have same columns (input just not shown in header)
         assert "colspec = {c c c }" in latex
+        # But input should not appear in header
+        assert "/pat/" not in latex
     
     def test_ot_tableau_violation_marks(self):
         input_form = "test"
@@ -125,8 +132,13 @@ class TestGenerateHGTableau:
             input_form, candidates, constraints, weights=weights
         )
         
-        assert r"\documentclass" in latex
-        assert r"\usepackage{tabularray}" in latex
+        # Should only contain tblr environment, not document wrapper
+        assert r"\documentclass" not in latex
+        assert r"\usepackage{tabularray}" not in latex
+        assert r"\begin{document}" not in latex
+        assert r"\end{document}" not in latex
+        assert r"\begin{tblr}" in latex
+        assert r"\end{tblr}" in latex
         assert "/pat/" in latex
         assert "NOCODA" in latex
         assert "☞" in latex
@@ -186,10 +198,12 @@ class TestGenerateTableauxFromGrammar:
             for f in files:
                 assert f.exists()
                 assert f.suffix == ".tex"
-                # Check file content
+                # Check file content - should only contain tblr environment
                 with open(f, 'r') as fh:
                     content = fh.read()
-                    assert r"\documentclass" in content
+                    assert r"\documentclass" not in content
+                    assert r"\begin{tblr}" in content
+                    assert r"\end{tblr}" in content
     
     def test_generate_hg_tableaux_from_grammar(self):
         constraints = [Constraint("C1"), Constraint("C2")]
@@ -279,9 +293,9 @@ class TestTableauWithLatexField:
         # Check that latex names appear in output
         assert r"\textsc{NoCoda}" in latex
         assert r"\textsc{Dep}" in latex
-        # Original names should not appear (except in violations dict lookups)
-        # But the display is what we care about
-        assert r"\documentclass" in latex
+        # Should only contain tblr environment
+        assert r"\documentclass" not in latex
+        assert r"\begin{tblr}" in latex
     
     def test_hg_tableau_with_latex_constraint_names(self):
         input_form = "pat"
@@ -304,7 +318,9 @@ class TestTableauWithLatexField:
         # Check that latex names appear in output
         assert r"\textsc{NoCoda}" in latex
         assert r"\textsc{Dep}" in latex
-        assert r"\documentclass" in latex
+        # Should only contain tblr environment
+        assert r"\documentclass" not in latex
+        assert r"\begin{tblr}" in latex
         assert "1.00" in latex  # Weight
     
     def test_tableaux_from_grammar_with_latex(self):
