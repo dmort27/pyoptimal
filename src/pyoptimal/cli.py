@@ -23,9 +23,9 @@ def main() -> None:
     parser.add_argument(
         "-a", "--algorithm",
         type=str,
-        choices=["ot", "hg"],
+        choices=["ot", "rcd", "edcd", "gla", "maxent", "hg"],
         default="ot",
-        help="Learning algorithm to use (default: ot)"
+        help="Learning algorithm to use: ot (constraint demotion), rcd (recursive constraint demotion), edcd (error-driven constraint demotion), gla (gradual learning algorithm), maxent (maximum entropy), hg (harmonic grammar) (default: ot)"
     )
     parser.add_argument(
         "-o", "--output",
@@ -89,6 +89,22 @@ def main() -> None:
             print(f"\nConstraint weights:")
             for c_name in sorted(weights.keys(), key=lambda k: weights[k], reverse=True):
                 print(f"  {c_name}: {weights[c_name]:.4f}")
+        elif args.algorithm == "gla":
+            from .ot import GLALearner
+            gla_learner = GLALearner(grammar)
+            gla_learner.learn()
+            ranking_values = gla_learner.get_ranking_values()
+            print(f"\nConstraint ranking values:")
+            for c_name in sorted(ranking_values.keys(), key=lambda k: ranking_values[k], reverse=True):
+                print(f"  {c_name}: {ranking_values[c_name]:.2f}")
+        elif args.algorithm == "maxent":
+            from .ot import MaxEntLearner
+            maxent_learner = MaxEntLearner(grammar)
+            maxent_learner.learn()
+            weights = maxent_learner.get_weights()
+            print(f"\nConstraint weights:")
+            for c_name in sorted(weights.keys(), key=lambda k: weights[k], reverse=True):
+                print(f"  {c_name}: {weights[c_name]:.4f}")
         
         if args.output:
             output_path = Path(args.output)
@@ -106,6 +122,7 @@ def main() -> None:
                 algorithm=args.algorithm,
                 weights=weights,
                 include_input_column=not args.no_input_column,
+                ranking=ranking,
             )
             
             print(f"\nGenerated {len(tableau_files)} tableau file(s) in {args.tableaux_dir}/:")

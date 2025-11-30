@@ -78,7 +78,7 @@ def generate_ot_tableau(
             (if not provided, uses constraint names)
     
     Returns:
-        LaTeX code for a complete standalone document with the tableau
+        LaTeX code for a tblr environment (fragment, not a complete document)
     """
     # Track whether display names were explicitly provided
     escape_display_names = constraint_display_names is None
@@ -86,23 +86,11 @@ def generate_ot_tableau(
         constraint_display_names = constraints
     lines = []
     
-    # Document setup for standalone tableau
-    lines.append(r"\documentclass[border=2pt]{standalone}")
-    lines.append(r"\usepackage{tabularray}")
-    lines.append(r"\UseTblrLibrary{booktabs}")
-    lines.append(r"")
-    lines.append(r"\begin{document}")
-    lines.append(r"")
-    
     # Determine column specification
-    if include_input_column:
-        # columns: optimal marker | input | output | constraints
-        n_constraints = len(constraints)
-        colspec = "c c c " + "c " * n_constraints
-    else:
-        # columns: optimal marker | output | constraints
-        n_constraints = len(constraints)
-        colspec = "c c " + "c " * n_constraints
+    # columns: optimal marker | output | constraints
+    # Note: input is shown in header above output column
+    n_constraints = len(constraints)
+    colspec = "c c " + "c " * n_constraints
     
     lines.append(r"\begin{tblr}{")
     lines.append(f"  colspec = {{{colspec}}},")
@@ -114,9 +102,11 @@ def generate_ot_tableau(
     # Header row
     header_parts = []
     if include_input_column:
-        header_parts.extend(["", f"/{escape_latex(input_form)}/", ""])
-    else:
+        # Input appears above the output column
         header_parts.extend(["", f"/{escape_latex(input_form)}/"])
+    else:
+        # No input shown
+        header_parts.extend(["", ""])
     
     for display_name in constraint_display_names:
         header_parts.append(format_constraint_name(display_name, escape=escape_display_names))
@@ -133,11 +123,7 @@ def generate_ot_tableau(
         else:
             row_parts.append("")
         
-        # Input column (optional)
-        if include_input_column:
-            row_parts.append("")  # Empty since input is in header
-        
-        # Output column
+        # Output column (input was in header above this column)
         row_parts.append(escape_latex(candidate.output_form))
         
         # Constraint violations (use original constraint names for lookups)
@@ -151,8 +137,6 @@ def generate_ot_tableau(
         lines.append("  " + " & ".join(row_parts) + r" \\")
     
     lines.append(r"\end{tblr}")
-    lines.append(r"")
-    lines.append(r"\end{document}")
     
     return "\n".join(lines)
 
@@ -180,7 +164,7 @@ def generate_hg_tableau(
             (if not provided, uses constraint names)
     
     Returns:
-        LaTeX code for a complete standalone document with the tableau
+        LaTeX code for a tblr environment (fragment, not a complete document)
     """
     # Track whether display names were explicitly provided
     escape_display_names = constraint_display_names is None
@@ -188,22 +172,11 @@ def generate_hg_tableau(
         constraint_display_names = constraints
     lines = []
     
-    # Document setup for standalone tableau
-    lines.append(r"\documentclass[border=2pt]{standalone}")
-    lines.append(r"\usepackage{tabularray}")
-    lines.append(r"\UseTblrLibrary{booktabs}")
-    lines.append(r"")
-    lines.append(r"\begin{document}")
-    lines.append(r"")
-    
     # Determine column specification
-    # optimal | input (optional) | output | constraints | harmony (optional)
-    if include_input_column:
-        n_base = 3  # optimal, input, output
-        colspec = "c c c"
-    else:
-        n_base = 2  # optimal, output
-        colspec = "c c"
+    # optimal | output | constraints | harmony (optional)
+    # Note: input is shown in header above output column
+    n_base = 2  # optimal, output
+    colspec = "c c"
     
     colspec += " c" * len(constraints)
     if include_harmony:
@@ -221,9 +194,11 @@ def generate_hg_tableau(
     # Header row 1: constraint names
     header_parts = []
     if include_input_column:
-        header_parts.extend(["", f"/{escape_latex(input_form)}/", ""])
-    else:
+        # Input appears above the output column
         header_parts.extend(["", f"/{escape_latex(input_form)}/"])
+    else:
+        # No input shown
+        header_parts.extend(["", ""])
     
     for display_name in constraint_display_names:
         header_parts.append(format_constraint_name(display_name, escape=escape_display_names))
@@ -236,10 +211,8 @@ def generate_hg_tableau(
     # Header row 2: weights (if provided, use original constraint names for lookups)
     if weights:
         weight_parts = []
-        if include_input_column:
-            weight_parts.extend(["", "", ""])
-        else:
-            weight_parts.extend(["", ""])
+        # Empty cells for optimal marker and output columns
+        weight_parts.extend(["", ""])
         
         for constraint in constraints:
             weight = weights.get(constraint, 0.0)
@@ -260,11 +233,7 @@ def generate_hg_tableau(
         else:
             row_parts.append("")
         
-        # Input column (optional, but empty in data rows)
-        if include_input_column:
-            row_parts.append("")
-        
-        # Output column
+        # Output column (input was in header above this column)
         row_parts.append(escape_latex(candidate.output_form))
         
         # Constraint violations (use original constraint names for lookups)
@@ -285,8 +254,6 @@ def generate_hg_tableau(
         lines.append("  " + " & ".join(row_parts) + r" \\")
     
     lines.append(r"\end{tblr}")
-    lines.append(r"")
-    lines.append(r"\end{document}")
     
     return "\n".join(lines)
 
@@ -297,6 +264,7 @@ def generate_tableaux_from_grammar(
     algorithm: str = "ot",
     weights: Optional[Dict[str, float]] = None,
     include_input_column: bool = True,
+    ranking: Optional['PartialOrder'] = None,
 ) -> List[Path]:
     """
     Generate LaTeX tableaux for all examples in a grammar.
@@ -307,6 +275,7 @@ def generate_tableaux_from_grammar(
         algorithm: "ot" or "hg"
         weights: Constraint weights (for HG tableaux)
         include_input_column: Whether to include input column
+        ranking: Optional PartialOrder to determine constraint ordering
     
     Returns:
         List of paths to generated tableau files
@@ -317,11 +286,21 @@ def generate_tableaux_from_grammar(
     # Group examples by input
     input_groups = group_examples_by_input(grammar.examples)
     
-    # Get constraint names in order
-    constraint_names = [c.name for c in grammar.constraints]
-    
-    # Get display names (using latex field if available)
-    constraint_display_names = [c.get_display_name() for c in grammar.constraints]
+    # Get constraint names and display names
+    # If ranking is provided, use it to order constraints
+    if ranking:
+        # Order constraints by strata (highest ranked first)
+        strata = ranking.get_strata()
+        ordered_constraints = []
+        for stratum in strata:
+            # Within each stratum, sort alphabetically for consistency
+            ordered_constraints.extend(sorted(stratum, key=lambda c: c.name))
+        constraint_names = [c.name for c in ordered_constraints]
+        constraint_display_names = [c.get_display_name() for c in ordered_constraints]
+    else:
+        # Use original grammar order
+        constraint_names = [c.name for c in grammar.constraints]
+        constraint_display_names = [c.get_display_name() for c in grammar.constraints]
     
     generated_files = []
     
@@ -366,6 +345,7 @@ def generate_tableaux_from_yaml(
     algorithm: str = "ot",
     weights: Optional[Dict[str, float]] = None,
     include_input_column: bool = True,
+    ranking: Optional['PartialOrder'] = None,
 ) -> List[Path]:
     """
     Generate LaTeX tableaux from a YAML grammar file.
@@ -376,6 +356,7 @@ def generate_tableaux_from_yaml(
         algorithm: "ot" or "hg"
         weights: Constraint weights (for HG tableaux)
         include_input_column: Whether to include input column
+        ranking: Optional PartialOrder to determine constraint ordering
     
     Returns:
         List of paths to generated tableau files
@@ -387,4 +368,5 @@ def generate_tableaux_from_yaml(
         algorithm=algorithm,
         weights=weights,
         include_input_column=include_input_column,
+        ranking=ranking,
     )

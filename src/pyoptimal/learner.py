@@ -68,7 +68,9 @@ class Learner:
     
     def train(self) -> PartialOrder:
         """Train the learner on the grammar's examples."""
-        if self.algorithm == "ot":
+        ot_algorithms = ["ot", "rcd", "edcd", "gla", "maxent"]
+        
+        if self.algorithm in ot_algorithms:
             return self._train_ot()
         elif self.algorithm == "hg":
             return self._train_hg()
@@ -76,9 +78,21 @@ class Learner:
             raise ValueError(f"Unknown algorithm: {self.algorithm}")
     
     def _train_ot(self) -> PartialOrder:
-        """Train using Optimality Theory approach."""
-        from .ot import OTLearner
-        learner = OTLearner(self.grammar)
+        """Train using Optimality Theory approach (default: basic constraint demotion)."""
+        from .ot import OTLearner, RCDLearner, EDCDLearner, GLALearner, MaxEntLearner
+        
+        # Select learner based on algorithm
+        if self.algorithm == "rcd":
+            learner = RCDLearner(self.grammar)
+        elif self.algorithm == "edcd":
+            learner = EDCDLearner(self.grammar)
+        elif self.algorithm == "gla":
+            learner = GLALearner(self.grammar)
+        elif self.algorithm == "maxent":
+            learner = MaxEntLearner(self.grammar)
+        else:  # "ot" or default
+            learner = OTLearner(self.grammar)
+        
         self.partial_order = learner.learn()
         return self.partial_order
     
