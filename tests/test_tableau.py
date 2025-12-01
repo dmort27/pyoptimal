@@ -103,7 +103,7 @@ class TestGenerateOTTableau:
         assert "NOCODA" in latex
         assert "MAX" in latex
         assert "DEP" in latex
-        assert "☞" in latex
+        assert r"\HandRight" in latex
         assert "pa.ta" in latex
         assert "pat" in latex
     
@@ -161,7 +161,7 @@ class TestGenerateHGTableau:
         assert r"\end{tblr}" in latex
         assert "/pat/" in latex
         assert "NOCODA" in latex
-        assert "☞" in latex
+        assert r"\HandRight" in latex
         assert "0.10" in latex  # Weight formatting
         assert "-0.20" in latex
         assert "H" in latex  # Harmony column header

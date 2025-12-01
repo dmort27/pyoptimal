@@ -120,7 +120,7 @@ def generate_ot_tableau(
         
         # Optimal marker
         if candidate.optimal:
-            row_parts.append("☞")
+            row_parts.append(r"\HandRight")
         else:
             row_parts.append("")
         
@@ -230,7 +230,7 @@ def generate_hg_tableau(
         
         # Optimal marker
         if candidate.optimal:
-            row_parts.append("☞")
+            row_parts.append(r"\HandRight")
         else:
             row_parts.append("")
         
