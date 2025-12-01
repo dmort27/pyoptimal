@@ -97,7 +97,11 @@ def generate_ot_tableau(
     lines.append(f"  colspec = {{{colspec}}},")
     lines.append(r"  row{1} = {font=\bfseries},")
     lines.append(r"  hlines,")
+    lines.append(r"  hline{2} = {1}{-}{},")
+    lines.append(r"  hline{2} = {2}{-}{0.4pt},")
     lines.append(r"  vlines,")
+    lines.append(r"  vline{3} = {1}{-}{},")
+    lines.append(r"  vline{3} = {2}{-}{0.4pt},")
     lines.append(r"}")
     
     # Header row
@@ -189,7 +193,16 @@ def generate_hg_tableau(
     if weights:
         lines.append(r"  row{2} = {font=\small\itshape},")
     lines.append(r"  hlines,")
+    # Double hline after header row(s) - row 3 if weights present, row 2 otherwise
+    if weights:
+        lines.append(r"  hline{3} = {1}{-}{},")
+        lines.append(r"  hline{3} = {2}{-}{0.4pt},")
+    else:
+        lines.append(r"  hline{2} = {1}{-}{},")
+        lines.append(r"  hline{2} = {2}{-}{0.4pt},")
     lines.append(r"  vlines,")
+    lines.append(r"  vline{3} = {1}{-}{},")
+    lines.append(r"  vline{3} = {2}{-}{0.4pt},")
     lines.append(r"}")
     
     # Header row 1: constraint names
